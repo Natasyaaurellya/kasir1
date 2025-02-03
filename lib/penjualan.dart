@@ -71,6 +71,8 @@ class _PenjualanScreenState extends State<PenjualanScreen> {
         cart[index]['quantity']--;
         totalPrice -= cart[index]['harga'];
       });
+    } else {
+      _removeFromCart(index); // If quantity is 0, remove item from cart
     }
   }
 
@@ -95,9 +97,13 @@ class _PenjualanScreenState extends State<PenjualanScreen> {
         'tanggal_penjualan': DateTime.now().toIso8601String(),
       });
       _showSnackBar('Transaction added successfully!');
+      
+      // Reset cart, total price, and selections after successful transaction
       setState(() {
         cart.clear();
         totalPrice = 0.0;
+        selectedFoodItem = null;
+        selectedMember = null;
       });
     } catch (error) {
       _showSnackBar('Error completing transaction: $error');
@@ -108,14 +114,14 @@ class _PenjualanScreenState extends State<PenjualanScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Penjualan"),
+        title: const Text("Penjualan", style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xff215470),
         centerTitle: true,
+        automaticallyImplyLeading: false, // Menonaktifkan tanda panah (ikon back)
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout, color: Color.fromARGB(255, 9, 9, 9)),
+            icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: _logout, // Logout ketika tombol ditekan
-          
           ),
         ],
       ),
@@ -124,10 +130,10 @@ class _PenjualanScreenState extends State<PenjualanScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Select Food Item'),
+            const Text('Select Food Item', style: TextStyle(color: Color.fromARGB(255, 16, 16, 16))),
             DropdownButton<Map<String, dynamic>>(
               value: selectedFoodItem,
-              hint: const Text('Select Food Item'),
+              hint: const Text('Select Food Item', style: TextStyle(color: Color.fromARGB(255, 13, 13, 13))),
               isExpanded: true,
               onChanged: (item) {
                 setState(() {
@@ -137,15 +143,15 @@ class _PenjualanScreenState extends State<PenjualanScreen> {
               items: foodItems.map((item) {
                 return DropdownMenuItem(
                   value: item,
-                  child: Text(item['nama_produk']),
+                  child: Text(item['nama_produk'], style: TextStyle(color: const Color.fromARGB(255, 15, 14, 14))),
                 );
               }).toList(),
             ),
             const SizedBox(height: 16),
-            const Text('Select Member'),
+            const Text('Select Member', style: TextStyle(color: Color.fromARGB(255, 16, 16, 16))),
             DropdownButton<Map<String, dynamic>>(
               value: selectedMember,
-              hint: const Text('Select Member'),
+              hint: const Text('Select Member', style: TextStyle(color: Color.fromARGB(255, 13, 13, 13))),
               isExpanded: true,
               onChanged: (item) {
                 setState(() {
@@ -155,26 +161,26 @@ class _PenjualanScreenState extends State<PenjualanScreen> {
               items: pelanggan.map((item) {
                 return DropdownMenuItem(
                   value: item,
-                  child: Text(item['nama_pelanggan']),
+                  child: Text(item['nama_pelanggan'], style: TextStyle(color: const Color.fromARGB(255, 12, 12, 12))),
                 );
               }).toList(),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _addToCart,
-              child: const Text('Add to Cart'),
+              child: const Text('Add to Cart', style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff215470)),
             ),
             const SizedBox(height: 16),
-            const Text('Cart:'),
+            const Text('Cart:', style: TextStyle(color: Color.fromARGB(255, 8, 8, 8))),
             Expanded(
               child: ListView.builder(
                 itemCount: cart.length,
                 itemBuilder: (context, index) {
                   final item = cart[index];
                   return ListTile(
-                    title: Text(item['nama_produk']),
-                    subtitle: Text("Price: ${item['harga']} x ${item['quantity']} = ${item['harga'] * item['quantity']}"),
+                    title: Text(item['nama_produk'], style: TextStyle(color: const Color.fromARGB(255, 15, 14, 14))),
+                    subtitle: Text("Price: ${item['harga']} x ${item['quantity']} = ${item['harga'] * item['quantity']}", style: TextStyle(color: const Color.fromARGB(255, 12, 12, 12))),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -182,14 +188,10 @@ class _PenjualanScreenState extends State<PenjualanScreen> {
                           icon: const Icon(Icons.remove, color: Colors.red),
                           onPressed: () => _decrementQuantity(index),
                         ),
-                        Text(item['quantity'].toString()),
+                        Text(item['quantity'].toString(), style: TextStyle(color: const Color.fromARGB(255, 7, 7, 7))),
                         IconButton(
                           icon: const Icon(Icons.add, color: Colors.green),
                           onPressed: () => _incrementQuantity(index),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.remove_circle, color: Colors.red),
-                          onPressed: () => _removeFromCart(index),
                         ),
                       ],
                     ),
@@ -204,11 +206,11 @@ class _PenjualanScreenState extends State<PenjualanScreen> {
                 children: [
                   const Text(
                     'Total Price: ',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 15, 14, 14)),
                   ),
                   Text(
                     'Rp. ${totalPrice.toStringAsFixed(2)}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 16, 16, 16)),
                   ),
                 ],
               ),
@@ -223,7 +225,7 @@ class _PenjualanScreenState extends State<PenjualanScreen> {
                   _showSnackBar('Please select a member and add items to the cart.');
                 }
               },
-              child: const Text('Complete Transaction'),
+              child: const Text('Complete Transaction', style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xff215470)),
             ),
           ],

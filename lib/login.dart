@@ -13,61 +13,51 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final SupabaseClient _supabaseClient = Supabase.instance.client;
 
+  final _formKey = GlobalKey<FormState>(); // Kunci untuk form
+
   Future<void> _login() async {
-    final username = _usernameController.text;
-    final password = _passwordController.text;
+    if (_formKey.currentState?.validate() ?? false) {
+      final username = _usernameController.text;
+      final password = _passwordController.text;
 
-    if (username.isNotEmpty && password.isNotEmpty) {
-      // Query ke tabel "user" di Supabase
-      final response = await _supabaseClient
-          .from('user')
-          .select()
-          .eq('username', username)
-          .eq('password', password)
-          .maybeSingle();
-
-      if (response != null) {
-        // Login berhasil
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text("Login Successful"),
-            content: Text("Welcome, ${response['username']}!"),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context); // Tutup dialog
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => HomeScreen()),
-                  ); // Navigasi ke HomeScreen
-                },
-                child: const Text("OK"),
-              ),
-            ],
-          ),
-        );
-      } else {
-        // Login gagal
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text("Login Failed"),
-            content: const Text("Incorrect username or password."),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("Coba Lagi"),
-              ),
-            ],
-          ),
+      // Jika hanya username yang kosong
+      if (username.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Username tidak boleh kosong")),
         );
       }
-    } else {
-      // Validasi jika field kosong
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill in all fields.")),
-      );
+      // Jika hanya password yang kosong
+      else if (password.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Password tidak boleh kosong")),
+        );
+      } else {
+        // Query ke tabel "user" di Supabase
+        final response = await _supabaseClient
+            .from('user')
+            .select()
+            .eq('username', username)
+            .eq('password', password)
+            .maybeSingle();
+
+        if (response != null) {
+          // Login berhasil
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Login Successful! Welcome, ${response['username']}")),
+          );
+
+          // Navigasi ke HomeScreen setelah login sukses
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+          );
+        } else {
+          // Login gagal
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Incorrect username or password.")),
+          );
+        }
+      }
     }
   }
 
@@ -78,73 +68,88 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 60),
-              const Text(
-                "Login",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 28,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 40),
-              TextField(
-                controller: _usernameController,
-                decoration: InputDecoration(
-                  hintText: "Username",
-                  hintStyle: TextStyle(color: Colors.grey[600]), // Warna hint teks
-                  filled: true,
-                  fillColor: const Color(0xffe0e0e0), // Latar belakang input field
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                ),
-                style: const TextStyle(color: Colors.black), // Warna teks utama
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  hintText: "Password",
-                  hintStyle: TextStyle(color: Colors.grey[600]), // Warna hint teks
-                  filled: true,
-                  fillColor: const Color(0xffe0e0e0), // Latar belakang input field
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                ),
-                style: const TextStyle(color: Colors.black), // Warna teks utama
-              ),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: _login,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xff215470), // Warna tombol
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  minimumSize: const Size(double.infinity, 50),
-                  elevation: 5,
-                ),
-                child: const Text(
+          child: Form(
+            key: _formKey, // Menetapkan formKey pada form
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 60),
+                const Text(
                   "Login",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Colors.white, // Warna teks tombol
+                    fontSize: 28,
+                    color: Colors.black,
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 40),
+                TextFormField(
+                  controller: _usernameController,
+                  decoration: InputDecoration(
+                    hintText: "Username",
+                    hintStyle: TextStyle(color: Colors.grey[600]), // Warna hint teks
+                    filled: true,
+                    fillColor: const Color(0xffe0e0e0), // Latar belakang input field
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                  ),
+                  style: const TextStyle(color: Colors.black), // Warna teks utama
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Username tidak boleh kosong'; // Pesan error jika kosong
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    hintText: "Password",
+                    hintStyle: TextStyle(color: Colors.grey[600]), // Warna hint teks
+                    filled: true,
+                    fillColor: const Color(0xffe0e0e0), // Latar belakang input field
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                  ),
+                  style: const TextStyle(color: Colors.black), // Warna teks utama
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Password tidak boleh kosong'; // Pesan error jika kosong
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  onPressed: _login,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xff215470), // Warna tombol
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    minimumSize: const Size(double.infinity, 50),
+                    elevation: 5,
+                  ),
+                  child: const Text(
+                    "Login",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.white, // Warna teks tombol
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

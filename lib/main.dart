@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:kasir/home.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'login.dart';
-
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 

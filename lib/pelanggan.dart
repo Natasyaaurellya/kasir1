@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'login.dart';
 
 class PelangganScreen extends StatefulWidget {
   const PelangganScreen({Key? key}) : super(key: key);
@@ -142,6 +143,7 @@ class _PelangganScreenState extends State<PelangganScreen> {
                   _showError('Mohon isi semua data dengan benar.');
                 }
               },
+              style: TextButton.styleFrom(backgroundColor: Colors.blue), // Mengubah warna tombol menjadi biru
               child: const Text('Simpan'),
             ),
           ],
@@ -182,11 +184,17 @@ class _PelangganScreenState extends State<PelangganScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Data Pelanggan', textAlign: TextAlign.center),
+        title: const Text(
+          'Data Pelanggan',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.white), // Mengubah warna teks menjadi putih
+        ),
         backgroundColor: const Color(0xff215470),
+        automaticallyImplyLeading: false, // Menghilangkan tanda panah di kiri
+        centerTitle: true, // Memusatkan judul
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout), // Ikon logout di pojok kanan
+            icon: const Icon(Icons.logout, color: Colors.white), // Mengubah warna icon logout menjadi putih
             onPressed: _logout, // Menampilkan dialog konfirmasi log out
           ),
         ],
@@ -244,7 +252,8 @@ class _PelangganScreenState extends State<PelangganScreen> {
                 ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddPelangganDialog(),
-        child: const Icon(Icons.add),
+        backgroundColor: const Color(0xff215470), // Mengubah warna background menjadi biru
+        child: const Icon(Icons.add, color: Colors.white), // Mengubah warna ikon menjadi putih
       ),
     );
   }
